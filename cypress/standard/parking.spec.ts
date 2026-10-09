@@ -28,8 +28,6 @@ describe("Parking cost calculator", () => {
     parkingCalculator.fillLeaving(invalidParkingInterval.leaving);
     parkingCalculator.calculate();
 
-    // An invalid interval must produce validation feedback without a price.
-    // Keep this regression test active until BUG-01 is fixed in the application.
     parkingCalculator.getResult().should("not.contain", "$");
   });
 });

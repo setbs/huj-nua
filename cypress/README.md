@@ -30,27 +30,24 @@ The expected result is **14 tests: 13 passing / 1 failing**. This was confirmed 
 - `evidence/`: preserved manual screenshots for BUG-01, BUG-02, and BUG-03.
 - `results/screenshots/`: the automated BUG-01 failure screenshot.
 - `assessment/`: the original assignment and the three bug reports with approach and next steps.
-- `submission-setup/`: copies of required root setup files, allowing the `cypress` ZIP to reproduce this configuration and dependency lock.
+
+Configuration and dependencies live in the project root: `.env.example`, `.gitignore`, `cypress.config.ts`, `package.json`, `package-lock.json`, and `tsconfig.json`.
 
 Each test opens a fresh page. The Page Object centralizes how to operate the UI, fixtures describe the scenarios, and tests explain what must be true. Cypress retries element queries and assertions without fixed waits, forced interactions, or suppressed application exceptions.
 
 ## Restoring the ZIP in the original repository
 
-The submission archive is `Stanislav_Diachuk_QA_Assessment.zip`, containing the `cypress` folder. Replace the original demonstration `cypress` directory with the archived directory. Save the old folder outside the repository first if needed. Simply merging directories leaves the removed Gherkin examples behind, and their deleted dependencies would break type checking. Replace the original root configuration and dependency files with the copies packaged inside `cypress/submission-setup`:
+The submission archive is `Stanislav_Diachuk_QA_Assessment.zip`, containing only the `cypress` folder. Replace the original demonstration `cypress` directory with the archived directory. Save the old folder outside the repository first if needed. Simply merging directories leaves the removed Gherkin examples behind, and their deleted dependencies would break type checking.
+
+The six root setup files are supplied separately in `Stanislav_Diachuk_QA_Assessment_Setup.zip`. Extract that archive into the repository root, replacing the original `.env.example`, `.gitignore`, `cypress.config.ts`, `package.json`, `package-lock.json`, and `tsconfig.json`, then run:
 
 ```sh
-cp cypress/submission-setup/package.json .
-cp cypress/submission-setup/package-lock.json .
-cp cypress/submission-setup/cypress.config.ts .
-cp cypress/submission-setup/tsconfig.json .
-cp cypress/submission-setup/.env.example .
-cp cypress/submission-setup/.gitignore .
 npm ci
 cp .env.example .env
 npm run typecheck
 npm run test:assessment
 ```
 
-The root snapshots remove the unused Cucumber/report pipeline and use Cypress's built-in TypeScript preprocessing. `tsconfig.json` excludes the snapshot directory from type checking. Use the submitted `package-lock.json` with `npm ci` to install the locked versions.
+The root configuration removes the unused Cucumber/report pipeline and uses Cypress's built-in TypeScript preprocessing. Use the submitted `package-lock.json` with `npm ci` to install the locked versions. The `cypress` archive alone does not include these root files; use both archives when restoring the refactored setup outside this repository.
 
-The archive includes `.env.example` and contains neither a real `.env` nor `node_modules`. Do not copy private environment files into the submission. The application is public and the example URL is sufficient for this assessment.
+The setup archive includes `.env.example`; neither archive contains a real `.env` or `node_modules`. The application is public and the example URL is sufficient for this assessment.

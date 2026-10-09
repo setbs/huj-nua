@@ -20,6 +20,5 @@ export default defineConfig({
   },
   video: false,
   screenshotsFolder: "cypress/results/screenshots",
-  // Keep the existing BUG-01 evidence when starting another run.
   trashAssetsBeforeRuns: false,
 });

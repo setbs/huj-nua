@@ -16,10 +16,10 @@ env -u ELECTRON_RUN_AS_NODE npm run test:assessment
 
 Use the ordinary `npm run test:assessment` command on hosts without that variable. No test or application behavior was changed to accommodate the host.
 
-The only failing test was `[BUG-01] rejects a leaving time earlier than the entry time`. All form actions completed, and failure occurred at `parking.spec.ts:26`, the result assertion:
+The only failing test was `[BUG-01] rejects a leaving time earlier than the entry time`. All form actions completed, and failure occurred at the result assertion:
 
 ```text
 AssertionError: Timed out retrying after 4000ms: expected '<td>' not to contain '$'
 ```
 
-The new screenshot is `results/screenshots/parking.spec.ts/Parking cost calculator -- [BUG-01] rejects a leaving time earlier than the entry time (failed) (1).png`. It shows `$0.00` and `-1 Days, 23 Hours, 0 Minutes`. The prior screenshot and all three manual screenshots remain preserved.
+The new screenshot is `results/screenshots/parking.spec.ts/Parking cost calculator -- [BUG-01] rejects a leaving time earlier than the entry time (failed) (1).png`. It shows `$0.00` and `-1 Days, 23 Hours, 0 Minutes`. All three manual screenshots remain preserved.

@@ -10,5 +10,5 @@
     "noEmit": true
   },
   "include": ["cypress.config.ts", "cypress/**/*.ts"],
-  "exclude": ["node_modules", "cypress/submission-setup"]
+  "exclude": ["node_modules"]
 }

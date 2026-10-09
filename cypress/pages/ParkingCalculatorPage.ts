@@ -68,7 +68,6 @@ export class ParkingCalculatorPage {
       .invoke("text")
       .then((text) => {
         const match = text.match(/\$\s*(\d+(?:\.\d{2})?)/);
-        // Missing monetary output must not be converted to a zero price.
         return match ? Number(match[1]) : Number.NaN;
       });
   }
