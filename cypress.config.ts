@@ -15,8 +15,8 @@ if (!baseUrl) {
 export default defineConfig({
   e2e: {
     baseUrl,
-    specPattern: "cypress/standard/parking.spec.ts",
-    supportFile: "cypress/support/e2e.ts",
+    specPattern: "cypress/e2e/parking-calculator.cy.ts",
+    supportFile: "cypress/support/commands.ts",
   },
   video: false,
   screenshotsFolder: "cypress/results/screenshots",

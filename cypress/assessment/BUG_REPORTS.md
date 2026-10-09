@@ -21,7 +21,7 @@ Actual: Displays `$0.00` and a duration of “-1 Days, 23 Hours, 0 Minutes”.
 
 The active automated test labelled `[BUG-01]` checks that this invalid interval produces no monetary estimate. Its result assertion fails while the application displays a price. The test does not skip the scenario or accept the bug as correct behavior.
 
-Manual evidence: [BUG-01.png](../evidence/BUG-01.png). The automated failure screenshot is retained in `../results/screenshots/parking.spec.ts/`.
+Manual evidence: [BUG-01.png](../evidence/BUG-01.png). The automated failure screenshot is retained in `../results/screenshots/`; [validation details](VALIDATION.md) identify the current screenshot.
 
 ## BUG-02 — Calculator accepts a nonexistent calendar date
 
@@ -68,9 +68,9 @@ The suite contains 14 independent tests covering all five parking types. Expecte
 - One-hour, 24-hour, and seven-day stays for Economy, Long-Term Garage, and Long-Term Surface parking.
 - The correct-behavior regression test demonstrating BUG-01.
 
-`ParkingCalculatorPage` centralizes selectors and form interactions. Typed fixtures supply fixed dates, times, lot values, and expected prices. The test file keeps the assertions and imports fixture data synchronously to register the scenarios. Every test begins with a fresh page visit; Cypress chains provide automatic waiting and retrying.
+Models define the date/time, input, and scenario contracts independently of the UI. `ParkingFactory` builds deterministic inputs from a fixed baseline; pricing fixtures specify the durations and expected amounts. The optional Faker helper supports exploratory data and is not used by these regression tests. A central Page Manager provides `ParkingCalculatorPage`, which groups selectors and shares date/time filling logic. The test file keeps the assertions and imports fixture data synchronously to register the scenarios. Every test begins with a fresh page visit; Cypress chains provide automatic waiting and retrying.
 
-The refactored suite was run on 9 October 2026: **14 tests, 13 passing / 1 failing**, with BUG-01 as the only failure at the result assertion. TypeScript checking passed. A non-zero exit code is expected until the application rejects invalid intervals. The supplied evidence is preserved alongside the new failure screenshot. [Validation details](VALIDATION.md) record the actual run; [run and ZIP setup instructions](../README.md) explain how to reproduce the suite.
+The refactored suite was run on 9 October 2026 using Cypress 13.4.0 in headless Electron 114: **14 tests, 13 passing / 1 failing**, with BUG-01 as the only failure at the result assertion and no pending or skipped tests. TypeScript, ESLint, and Prettier checks passed through `npm run check`. A non-zero test exit code is expected until the application rejects invalid intervals. The supplied manual evidence is preserved. [Validation details](VALIDATION.md) record completed checks and the actual browser run; [run and ZIP setup instructions](../README.md) explain how to reproduce the suite and run the code checks.
 
 ## Next steps
 

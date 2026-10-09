@@ -1,74 +1,112 @@
-export type ParkingLot =
-  | "Valet"
-  | "Short"
-  | "Economy"
-  | "Long-Garage"
-  | "Long-Surface";
+import type { ParkingDateTime } from "../models/parking/parking-date-time.model";
+import type {
+  ParkingInput,
+  ParkingLot,
+} from "../models/parking/parking-input.model";
 
-export interface ParkingDateTime {
-  date: string;
-  time: string;
-  period: "AM" | "PM";
-}
+type DateTimeField = "starting" | "leaving";
 
 export class ParkingCalculatorPage {
   private readonly selectors = {
+    form: 'form[name="Calculator"]',
     parkingLot: "#ParkingLot",
-    startingDate: "#StartingDate",
-    startingTime: "#StartingTime",
-    startingPeriod: 'input[name="StartingTimeAMPM"]',
-    leavingDate: "#LeavingDate",
-    leavingTime: "#LeavingTime",
-    leavingPeriod: 'input[name="LeavingTimeAMPM"]',
-    calculate: 'input[type="submit"]',
-    resultLabel: "td",
-    resultLabelText: /estimated parking costs/i,
-    result: "td",
-  };
+    starting: {
+      date: "#StartingDate",
+      time: "#StartingTime",
+      period: 'input[name="StartingTimeAMPM"]',
+    },
+    leaving: {
+      date: "#LeavingDate",
+      time: "#LeavingTime",
+      period: 'input[name="LeavingTimeAMPM"]',
+    },
+    calculateButton: 'input[type="submit"][value="Calculate"]',
+    resultCell: "td",
+    resultAmount: "span.SubHead > b",
+  } as const;
 
   open(): Cypress.Chainable<Cypress.AUTWindow> {
     return cy.visit("/");
   }
 
-  selectParking(parkingLot: ParkingLot): Cypress.Chainable<JQuery<HTMLElement>> {
-    return cy.get(this.selectors.parkingLot).select(parkingLot);
+  selectParking(
+    parkingLot: ParkingLot,
+  ): Cypress.Chainable<JQuery<HTMLSelectElement>> {
+    return cy
+      .get<HTMLSelectElement>(this.selectors.parkingLot)
+      .select(parkingLot);
   }
 
-  fillEntry(entry: ParkingDateTime): Cypress.Chainable<JQuery<HTMLElement>> {
-    cy.get(this.selectors.startingDate).clear().type(entry.date);
-    cy.get(this.selectors.startingTime).clear().type(entry.time);
+  private fillDateTime(
+    field: DateTimeField,
+    value: ParkingDateTime,
+  ): Cypress.Chainable<JQuery<HTMLInputElement>> {
+    const selectors = this.selectors[field];
+
+    cy.get<HTMLInputElement>(selectors.date).clear().type(value.date);
+    cy.get<HTMLInputElement>(selectors.time).clear().type(value.time);
+
     return cy
-      .get(`${this.selectors.startingPeriod}[value="${entry.period}"]`)
+      .get<HTMLInputElement>(`${selectors.period}[value="${value.period}"]`)
       .check();
   }
 
-  fillLeaving(leaving: ParkingDateTime): Cypress.Chainable<JQuery<HTMLElement>> {
-    cy.get(this.selectors.leavingDate).clear().type(leaving.date);
-    cy.get(this.selectors.leavingTime).clear().type(leaving.time);
-    return cy
-      .get(`${this.selectors.leavingPeriod}[value="${leaving.period}"]`)
-      .check();
+  fillEntry(
+    entry: ParkingDateTime,
+  ): Cypress.Chainable<JQuery<HTMLInputElement>> {
+    return this.fillDateTime("starting", entry);
   }
 
-  calculate(): Cypress.Chainable<JQuery<HTMLElement>> {
-    return cy.get(this.selectors.calculate).click();
+  fillLeaving(
+    leaving: ParkingDateTime,
+  ): Cypress.Chainable<JQuery<HTMLInputElement>> {
+    return this.fillDateTime("leaving", leaving);
+  }
+
+  fillParkingDetails(
+    input: ParkingInput,
+  ): Cypress.Chainable<JQuery<HTMLInputElement>> {
+    this.selectParking(input.parkingLot);
+    this.fillEntry(input.entry);
+
+    return this.fillLeaving(input.leaving);
+  }
+
+  calculate(): Cypress.Chainable<JQuery<HTMLInputElement>> {
+    return cy
+      .get<HTMLFormElement>(this.selectors.form)
+      .find<HTMLInputElement>(this.selectors.calculateButton)
+      .click();
   }
 
   getResult(): Cypress.Chainable<JQuery<HTMLTableCellElement>> {
     return cy
+      .get<HTMLFormElement>(this.selectors.form)
       .contains<HTMLTableCellElement>(
-        this.selectors.resultLabel,
-        this.selectors.resultLabelText,
+        this.selectors.resultCell,
+        /estimated parking costs/i,
       )
-      .next<HTMLTableCellElement>(this.selectors.result);
+      .next<HTMLTableCellElement>(this.selectors.resultCell);
   }
 
   getAmount(): Cypress.Chainable<number> {
-    return this.getResult()
-      .invoke("text")
-      .then((text) => {
-        const match = text.match(/\$\s*(\d+(?:\.\d{2})?)/);
-        return match ? Number(match[1]) : Number.NaN;
-      });
+    return this.getResult().then(($result) => {
+      const text = $result.find(this.selectors.resultAmount).text().trim();
+      const match = text.match(/^\$\s*(\d+(?:\.\d{2})?)$/);
+
+      if (!match) {
+        throw new Error(
+          `Unable to parse parking amount from "${text || $result.text().trim()}": expected a complete dollar amount.`,
+        );
+      }
+
+      const amount = Number(match[1]);
+
+      if (!Number.isFinite(amount)) {
+        throw new Error(`Parking amount is not a finite number: "${text}".`);
+      }
+
+      return amount;
+    });
   }
 }
